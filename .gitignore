@@ -1,0 +1,5 @@
+bin
+obj
+CurrencyConverter.Api/appsettings.json
+.vs
+.vscode
