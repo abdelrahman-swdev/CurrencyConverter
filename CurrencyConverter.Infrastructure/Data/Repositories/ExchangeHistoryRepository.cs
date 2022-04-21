@@ -1,8 +1,10 @@
 ﻿using CurrencyConverter.Core.Entities;
 using CurrencyConverter.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CurrencyConverter.Infrastructure.Data.Repositories
@@ -22,10 +24,14 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<ExchangeHistory> FindByIdAsync(int id)
+        public async Task<List<ExchangeHistory>> FindByAsync(Expression<Func<ExchangeHistory, bool>> criteria)
         {
-            return await _context.ExchangeHistory.FindAsync(id);
+            return await _context.ExchangeHistory.Where(criteria).ToListAsync();
         }
+
+        public async Task<ExchangeHistory> FindByIdAsync(int id) =>
+            await _context.ExchangeHistory.FindAsync(id);
+        
 
         public async Task<ExchangeHistory> GetLatestHistoryForCurrencyAsync(int curId)
         {
@@ -35,10 +41,18 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IReadOnlyList<ExchangeHistory>> ListAllAsync()
+        public async Task<float> GetLatestRateForCurrencyAsync(int curId)
         {
-            return await _context.ExchangeHistory.ToListAsync();
+            return await _context.ExchangeHistory
+                .Where(e => e.CurId == curId)
+                .OrderByDescending(e => e.ExchangeDate)
+                .Select(e => e.Rate)
+                .FirstOrDefaultAsync();
         }
+
+        public async Task<IReadOnlyList<ExchangeHistory>> ListAllAsync() =>
+            await _context.ExchangeHistory.ToListAsync();
+        
 
         public async Task<ExchangeHistory> UpdateAsync(ExchangeHistory entity)
         {

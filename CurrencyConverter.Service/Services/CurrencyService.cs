@@ -1,9 +1,11 @@
 ﻿using CurrencyConverter.Core.Entities;
 using CurrencyConverter.Core.Interfaces;
 using CurrencyConverter.Service.DTOs;
+using CurrencyConverter.Service.Enums;
 using CurrencyConverter.Service.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CurrencyConverter.Service.Services
@@ -12,6 +14,7 @@ namespace CurrencyConverter.Service.Services
     {
         private readonly ICurrencyRepository _currencyRepository;
         private readonly IExchangeHistoryRepository _exchangeHistoryRepository;
+        private static readonly double _dollar = Convert.ToDouble(Dollar.One);
 
         public CurrencyService(ICurrencyRepository currencyRepository, IExchangeHistoryRepository exchangeHistoryRepository)
         {
@@ -32,7 +35,7 @@ namespace CurrencyConverter.Service.Services
             {
                 CurId = currency.Id,
                 ExchangeDate = DateTime.Now,
-                Rate = currencyDto.Rate
+                Rate = (float)Math.Round(_dollar / currencyDto.ValueAgainstUsd, 3)
             };
             // create _exchangeHistoryRepository
             await _exchangeHistoryRepository.AddAsync(exchangeHistory);
@@ -45,26 +48,29 @@ namespace CurrencyConverter.Service.Services
             return await _currencyRepository.DeleteAsync(currency);
         }
 
-        public async Task<Currency> FindByIdAsync(int id)
+        public async Task<Currency> FindByIdAsync(int id) => 
+            await _currencyRepository.FindByIdAsync(id);
+        
+
+        public async Task<CurrencyToReturnDto> GetCurrencyByNameAsync(string name)
         {
-            return await _currencyRepository.FindByIdAsync(id);
+            var currency = await _currencyRepository.GetCurrencyByNameAsync(name);
+            if(currency == null) return null;
+            return new CurrencyToReturnDto { Id = currency.Id, Sign = currency.Sign, Name = currency.Name };
         }
 
-        public async Task<Currency> GetCurrencyByNameAsync(string name)
+        public async Task<IReadOnlyList<CurrencyToReturnDto>> ListAllAsync()
         {
-            return await _currencyRepository.GetCurrencyByNameAsync(name);
-        }
-
-        public async Task<IReadOnlyList<Currency>> ListAllAsync()
-        {
-            return await _currencyRepository.ListAllAsync();
+            var data = await _currencyRepository.ListAllAsync();
+            return data.Select(c => 
+                new CurrencyToReturnDto { Id = c.Id, Name = c.Name, Sign = c.Sign}).ToList();
         }
 
         /// <summary>
         /// update the entity
         /// </summary>
         /// <param name="currencyDto"></param>
-        /// <returns>entity or null</returns>
+        /// <returns>CurrencyForUpdateDto or null</returns>
         public async Task<CurrencyForUpdateDto> UpdateAsync(CurrencyForUpdateDto currencyDto)
         {
             var currency = await _currencyRepository.FindByIdAsync(currencyDto.Id);
@@ -78,20 +84,69 @@ namespace CurrencyConverter.Service.Services
             var latestHistory = await _exchangeHistoryRepository.GetLatestHistoryForCurrencyAsync(currency.Id);
             if (latestHistory != null)
             {
-                if (latestHistory.Rate != currencyDto.Rate)
+                var newRate = (float)Math.Round(_dollar / currencyDto.ValueAgainstUsd, 3);
+                if (latestHistory.Rate != newRate)
                 {
                     // if changed add a record in exchangeHistory table with new rate for this currency
                     var newHistory = new ExchangeHistory
                     {
                         CurId = currency.Id,
                         ExchangeDate = DateTime.Now,
-                        Rate = currencyDto.Rate
+                        Rate = newRate
                     };
                     await _exchangeHistoryRepository.AddAsync(newHistory);
                 }
             }
             await _currencyRepository.UpdateAsync(currency);
             return currencyDto;
+        }
+
+        public async Task<IReadOnlyList<CurrencyWithRateToReturnDto>> GetHighestNCurrenciesAsync(int count)
+        {
+            var result = await _currencyRepository.GetHighestNCurrenciesAsync(count);
+            return result.Select(c => new CurrencyWithRateToReturnDto
+            {
+                Id = c.Key.Id,
+                Name = c.Key.Name,
+                Rate = c.Value,
+                Sign = c.Key.Sign
+            }).OrderByDescending(c => c.Rate).ToList();
+        }
+
+        public async Task<IReadOnlyList<CurrencyWithRateToReturnDto>> GetLowestNCurrenciesAsync(int count)
+        {
+            var result = await _currencyRepository.GetLowestNCurrenciesAsync(count);
+            return result.Select(c => new CurrencyWithRateToReturnDto
+            {
+                Id = c.Key.Id,
+                Name = c.Key.Name,
+                Rate = c.Value,
+                Sign = c.Key.Sign
+            }).OrderBy(c => c.Rate).ToList();
+        }
+
+        public async Task<IReadOnlyList<CurrencyWithImprovedRateToReturnDto>> GetMostNImprovedCurrenciesByDateAsync(DateTime from, DateTime to, int count)
+        {
+            var result = await _currencyRepository.GetMostNImprovedCurrenciesByDateAsync(from, to, count);
+            return result.Select(c => new CurrencyWithImprovedRateToReturnDto
+            {
+                Id = c.Key.Id,
+                Name = c.Key.Name,
+                ImprovedAmount = c.Value,
+                Sign = c.Key.Sign
+            }).OrderByDescending(c => c.ImprovedAmount).ToList();
+        }
+
+        public async Task<IReadOnlyList<CurrencyWithDecreasedRateToReturnDto>> GetLeastNImprovedCurrenciesByDateAsync(DateTime from, DateTime to, int count)
+        {
+            var result = await _currencyRepository.GetLeastNImprovedCurrenciesByDateAsync(from, to, count);
+            return result.Select(c => new CurrencyWithDecreasedRateToReturnDto
+            {
+                Id = c.Key.Id,
+                Name = c.Key.Name,
+                DecreasedAmount = c.Value,
+                Sign = c.Key.Sign
+            }).OrderByDescending(c => c.DecreasedAmount).ToList();
         }
     }
 }

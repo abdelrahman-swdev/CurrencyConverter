@@ -7,5 +7,8 @@ namespace CurrencyConverter.Core.Interfaces
     {
         // get latest history for currency
         Task<ExchangeHistory> GetLatestHistoryForCurrencyAsync(int curId);
+
+        // get latest rate for currency
+        Task<float> GetLatestRateForCurrencyAsync(int curId);
     }
 }

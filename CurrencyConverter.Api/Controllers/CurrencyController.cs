@@ -4,6 +4,7 @@ using CurrencyConverter.Service.DTOs;
 using CurrencyConverter.Service.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -19,10 +20,9 @@ namespace CurrencyConverter.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Currency>>> GetAllCurrencies()
-        {
-            return Ok(await _currencyService.ListAllAsync());
-        }
+        public async Task<ActionResult<IReadOnlyList<CurrencyToReturnDto>>> GetAllCurrencies() => 
+            Ok(await _currencyService.ListAllAsync());
+        
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,9 +48,9 @@ namespace CurrencyConverter.Api.Controllers
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Currency>> GetCurrencyByName([FromQuery] string name)
         {
-            var currency = await _currencyService.GetCurrencyByNameAsync(name);
-            if (currency == null) return NotFound(new ApiResponse(404));
-            return Ok(currency);
+            var CurrencyToReturnDto = await _currencyService.GetCurrencyByNameAsync(name);
+            if (CurrencyToReturnDto == null) return NotFound(new ApiResponse(404));
+            return Ok(CurrencyToReturnDto);
         }
 
         [HttpPut]
@@ -61,6 +61,71 @@ namespace CurrencyConverter.Api.Controllers
         {
             var result = await _currencyService.UpdateAsync(currencyDto);
             if(result == null) return NotFound(new ApiResponse(404));
+            return Ok(result);
+        }
+
+        [HttpGet("GetHighestNCurrencies/{count}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CurrencyWithRateToReturnDto>> GetHighestNCurrencies([FromRoute] int count)
+        {
+            if(count <= 0) return new BadRequestObjectResult( new ApiValidationErrorResponse()
+                {
+                    Errors = new[] { "Count must be greater than 0" }
+                }
+            );
+
+            var result = await _currencyService.GetHighestNCurrenciesAsync(count);
+            return Ok(result);
+        }
+
+        [HttpGet("GetLowestNCurrencies/{count}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CurrencyWithRateToReturnDto>> GetLowestNCurrencies([FromRoute] int count)
+        {
+            if (count <= 0) return new BadRequestObjectResult(new ApiValidationErrorResponse()
+            {
+                Errors = new[] { "Count must be greater than 0" }
+            });
+
+            var result = await _currencyService.GetLowestNCurrenciesAsync(count);
+            return Ok(result);
+        }
+
+        [HttpPost("GetMostNImprovedCurrenciesByDate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CurrencyWithRateToReturnDto>> GetMostNImprovedCurrenciesByDate(
+            [FromBody] GetMostOrLeastNImprovedCurrenciesByDateParamsDto model)
+        {
+            DateTime fromDate, toDate;
+            if (!DateTime.TryParse(model.From, out fromDate) || !DateTime.TryParse(model.To, out toDate))
+                return new BadRequestObjectResult(new ApiValidationErrorResponse()
+                {
+                    Errors = new[] { "Invalid date format, enter something like 4/20/2022 3:35:23 AM" }
+                }
+            );
+
+            var result = await _currencyService.GetMostNImprovedCurrenciesByDateAsync(fromDate, toDate, model.Count);
+            return Ok(result);
+        }
+
+        [HttpPost("GetLeastNImprovedCurrenciesByDate")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiValidationErrorResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<CurrencyWithRateToReturnDto>> GetLeastNImprovedCurrenciesByDate(
+            [FromBody] GetMostOrLeastNImprovedCurrenciesByDateParamsDto model)
+        {
+            DateTime fromDate, toDate;
+            if (!DateTime.TryParse(model.From, out fromDate) || !DateTime.TryParse(model.To, out toDate))
+                return new BadRequestObjectResult(new ApiValidationErrorResponse()
+                {
+                    Errors = new[] { "Invalid date format, enter something like 4/20/2022 3:35:23 AM" }
+                }
+            );
+
+            var result = await _currencyService.GetLeastNImprovedCurrenciesByDateAsync(fromDate, toDate, model.Count);
             return Ok(result);
         }
     }

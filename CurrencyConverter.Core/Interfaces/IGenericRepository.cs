@@ -1,5 +1,7 @@
 ﻿using CurrencyConverter.Core.Entities;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace CurrencyConverter.Core.Interfaces
@@ -10,5 +12,7 @@ namespace CurrencyConverter.Core.Interfaces
         Task<T> UpdateAsync(T entity);
         Task<IReadOnlyList<T>> ListAllAsync();
         Task<T> FindByIdAsync(int id);
+
+        Task<List<T>> FindByAsync(Expression<Func<T, bool>> criteria);
     }
 }
