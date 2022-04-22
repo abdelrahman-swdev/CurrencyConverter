@@ -16,10 +16,9 @@ namespace CurrencyConverter.Service.Services
             _signInManager = signInManager;
             _userManager = userManager;
         }
-        public async Task<bool> CheckEmailExistsAsync(string email)
-        {
-            return await _userManager.FindByEmailAsync(email) != null;
-        }
+        public async Task<bool> CheckEmailExistsAsync(string email) =>
+             await _userManager.FindByEmailAsync(email) != null;
+        
 
         public async Task<UserToReturnDto> LoginAsync(LoginDto loginDto)
         {
@@ -42,9 +41,7 @@ namespace CurrencyConverter.Service.Services
             };
 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded) return null;
-
-            return new UserToReturnDto { Email = user.Email };
+            return !result.Succeeded ? null : new UserToReturnDto { Email = user.Email };
         }
     }
 }

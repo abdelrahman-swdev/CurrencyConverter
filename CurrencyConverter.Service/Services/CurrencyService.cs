@@ -37,15 +37,13 @@ namespace CurrencyConverter.Service.Services
                 ExchangeDate = DateTime.Now,
                 Rate = (float)Math.Round(_dollar / currencyDto.ValueAgainstUsd, 3)
             };
-            // create _exchangeHistoryRepository
             await _exchangeHistoryRepository.AddAsync(exchangeHistory);
         }
 
         public async Task<int> DeleteAsync(int currencyId)
         {
             var currency = await _currencyRepository.FindByIdAsync(currencyId);
-            if (currency == null) return 0;
-            return await _currencyRepository.DeleteAsync(currency);
+            return currency == null ? 0 : await _currencyRepository.DeleteAsync(currency);
         }
 
         public async Task<Currency> FindByIdAsync(int id) => 
@@ -55,8 +53,9 @@ namespace CurrencyConverter.Service.Services
         public async Task<CurrencyToReturnDto> GetCurrencyByNameAsync(string name)
         {
             var currency = await _currencyRepository.GetCurrencyByNameAsync(name);
-            if(currency == null) return null;
-            return new CurrencyToReturnDto { Id = currency.Id, Sign = currency.Sign, Name = currency.Name };
+            return currency == null 
+                ? null 
+                : new CurrencyToReturnDto { Id = currency.Id, Sign = currency.Sign, Name = currency.Name };
         }
 
         public async Task<IReadOnlyList<CurrencyToReturnDto>> ListAllAsync()
@@ -79,23 +78,20 @@ namespace CurrencyConverter.Service.Services
             currency.Name = currencyDto.Name;
             currency.Sign = currencyDto.Sign;
 
-            // get latest history for this currency
+            // get latest rate for this currency
             // to know if rate changed or not
-            var latestHistory = await _exchangeHistoryRepository.GetLatestHistoryForCurrencyAsync(currency.Id);
-            if (latestHistory != null)
+            var latestHistoryRate = await _exchangeHistoryRepository.GetLatestRateForCurrencyAsync(currency.Id);
+            var newRate = (float)Math.Round(_dollar / currencyDto.ValueAgainstUsd, 3);
+            if (latestHistoryRate != newRate)
             {
-                var newRate = (float)Math.Round(_dollar / currencyDto.ValueAgainstUsd, 3);
-                if (latestHistory.Rate != newRate)
+                // if changed add a record in exchangeHistory table with new rate for this currency
+                var newHistory = new ExchangeHistory
                 {
-                    // if changed add a record in exchangeHistory table with new rate for this currency
-                    var newHistory = new ExchangeHistory
-                    {
-                        CurId = currency.Id,
-                        ExchangeDate = DateTime.Now,
-                        Rate = newRate
-                    };
-                    await _exchangeHistoryRepository.AddAsync(newHistory);
-                }
+                    CurId = currency.Id,
+                    ExchangeDate = DateTime.Now,
+                    Rate = newRate
+                };
+                await _exchangeHistoryRepository.AddAsync(newHistory);
             }
             await _currencyRepository.UpdateAsync(currency);
             return currencyDto;
@@ -147,6 +143,19 @@ namespace CurrencyConverter.Service.Services
                 DecreasedAmount = c.Value,
                 Sign = c.Key.Sign
             }).OrderByDescending(c => c.DecreasedAmount).ToList();
+        }
+
+
+        /// <summary>
+        /// convert amount from currency to another one 
+        /// </summary>
+        /// <param name="fromCurrencyName"></param>
+        /// <param name="toCurrencyName"></param>
+        /// <param name="amount"></param>
+        /// <returns>converted amount or, -1 if on of currencies not found</returns>
+        public async Task<float> ConvertAmountAsync(string fromCurrencyName, string toCurrencyName, float amount)
+        {
+            return await _currencyRepository.ConvertAmountAsync(fromCurrencyName, toCurrencyName, amount);
         }
     }
 }

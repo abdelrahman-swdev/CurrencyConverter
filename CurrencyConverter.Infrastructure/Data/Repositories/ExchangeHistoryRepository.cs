@@ -24,31 +24,28 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<ExchangeHistory>> FindByAsync(Expression<Func<ExchangeHistory, bool>> criteria)
-        {
-            return await _context.ExchangeHistory.Where(criteria).ToListAsync();
-        }
+        public async Task<List<ExchangeHistory>> FindByAsync(Expression<Func<ExchangeHistory, bool>> criteria) =>
+             await _context.ExchangeHistory.Where(criteria).ToListAsync();
+        
 
         public async Task<ExchangeHistory> FindByIdAsync(int id) =>
             await _context.ExchangeHistory.FindAsync(id);
         
 
-        public async Task<ExchangeHistory> GetLatestHistoryForCurrencyAsync(int curId)
-        {
-            return await _context.ExchangeHistory
+        public async Task<ExchangeHistory> GetLatestHistoryForCurrencyAsync(int curId) =>
+             await _context.ExchangeHistory
                 .Where(e => e.CurId == curId)
                 .OrderByDescending(e => e.ExchangeDate)
                 .FirstOrDefaultAsync();
-        }
+        
 
-        public async Task<float> GetLatestRateForCurrencyAsync(int curId)
-        {
-            return await _context.ExchangeHistory
+        public async Task<float> GetLatestRateForCurrencyAsync(int curId) =>
+             await _context.ExchangeHistory
                 .Where(e => e.CurId == curId)
                 .OrderByDescending(e => e.ExchangeDate)
                 .Select(e => e.Rate)
                 .FirstOrDefaultAsync();
-        }
+        
 
         public async Task<IReadOnlyList<ExchangeHistory>> ListAllAsync() =>
             await _context.ExchangeHistory.ToListAsync();

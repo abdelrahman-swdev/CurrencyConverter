@@ -1,11 +1,12 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace CurrencyConverter.Service.DTOs
+namespace CurrencyConverter.Api.Params
 {
-    public class GetMostOrLeastNImprovedCurrenciesByDateParamsDto
+    public class GetMostOrLeastNImprovedCurrenciesByDateParams
     {
+        [Required]
         public string From { get; set; }
+        [Required]
 
         public string To { get; set; }
 

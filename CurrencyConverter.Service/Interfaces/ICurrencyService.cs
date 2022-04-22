@@ -31,5 +31,8 @@ namespace CurrencyConverter.Service.Interfaces
         
         // get any count of the least improved rates within specified dates.
         Task<IReadOnlyList<CurrencyWithDecreasedRateToReturnDto>> GetLeastNImprovedCurrenciesByDateAsync(DateTime from, DateTime to, int count);
+
+        // convert any amount from specific currency to another currency.
+        Task<float> ConvertAmountAsync(string fromCurrencyName, string toCurrencyName, float amount);
     }
 }

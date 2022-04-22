@@ -7,9 +7,7 @@ namespace CurrencyConverter.Api.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ErrorController : BaseApiController
     {
-        public IActionResult Error(int code)
-        {
-            return new ObjectResult(new ApiResponse(code));
-        }
+        public IActionResult Error(int code) =>
+             new ObjectResult(new ApiResponse(code));
     }
 }

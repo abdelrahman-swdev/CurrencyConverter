@@ -16,7 +16,7 @@ namespace CurrencyConverter.Api.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
+        [HttpPost("Register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserToReturnDto>> Register(RegisterDto registerDto)
@@ -32,19 +32,17 @@ namespace CurrencyConverter.Api.Controllers
                     });
             }
             var result = await _authService.RegisterAsync(registerDto);
-            if(result == null) return BadRequest(new ApiResponse(400));
-            return Ok(result);
+            return result == null ? BadRequest(new ApiResponse(400)) : Ok(result);
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserToReturnDto>> Login(LoginDto loginDto)
         {
             var result = await _authService.LoginAsync(loginDto);
-            if (result == null) return Unauthorized(new ApiResponse(401));
-            return Ok(result);
+            return result == null ? Unauthorized(new ApiResponse(401)) : Ok(result);
         }
     }
 }
