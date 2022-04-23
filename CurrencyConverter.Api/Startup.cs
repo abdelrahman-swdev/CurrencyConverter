@@ -1,10 +1,7 @@
 using CurrencyConverter.Api.Errors;
+using CurrencyConverter.Api.Extensions;
 using CurrencyConverter.Api.Middlewares;
-using CurrencyConverter.Core.Interfaces;
 using CurrencyConverter.Infrastructure.Data;
-using CurrencyConverter.Infrastructure.Data.Repositories;
-using CurrencyConverter.Service.Interfaces;
-using CurrencyConverter.Service.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -54,10 +51,8 @@ namespace CurrencyConverter.Api
                 };
             });
 
-            services.AddScoped<ICurrencyRepository, CurrencyRepository>();
-            services.AddScoped<IExchangeHistoryRepository, ExchangeHistoryRepository>();
-            services.AddScoped<ICurrencyService, CurrencyService>();
-            services.AddScoped<IAuthService, AuthService>();
+            // add application services
+            services.AddApplicationServices();
 
             services.AddSwaggerGen(c =>
             {

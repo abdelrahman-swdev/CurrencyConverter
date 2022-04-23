@@ -46,7 +46,7 @@ namespace CurrencyConverter.Api.Controllers
         [HttpGet("GetCurrencyByName")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Currency>> GetCurrencyByName([FromQuery] string name)
+        public async Task<ActionResult<CurrencyToReturnDto>> GetCurrencyByName([FromQuery] string name)
         {
             var currencyToReturnDto = await _currencyService.GetCurrencyByNameAsync(name);
             return currencyToReturnDto == null ? NotFound(new ApiResponse(404)) : Ok(currencyToReturnDto);
@@ -54,9 +54,9 @@ namespace CurrencyConverter.Api.Controllers
 
         [HttpPut("UpdateCurrency")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiValidationErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CurrencyForUpdateDto>> UpdateCurrency([FromBody] CurrencyForUpdateDto currencyDto)
+        public async Task<ActionResult<CurrencyForUpdateDto>> UpdateCurrency(CurrencyForUpdateDto currencyDto)
         {
             var result = await _currencyService.UpdateAsync(currencyDto);
             return result == null ? NotFound(new ApiResponse(404)) : Ok(result);

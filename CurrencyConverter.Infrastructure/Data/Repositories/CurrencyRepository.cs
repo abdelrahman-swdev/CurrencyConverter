@@ -80,7 +80,7 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
         {
             var historyWithinDate = await _exchangeHistoryRepo
                 .FindByAsync(c => c.ExchangeDate.Date >= from.Date && c.ExchangeDate.Date <= to.Date);
-            Dictionary<int, float> CurrenciesIdsWithAmountOfImprovedRate = GetDictionaryForCurrenciesIdsWithAmountOfImprovedRate(historyWithinDate);
+            var CurrenciesIdsWithAmountOfImprovedRate = GetDictionaryForCurrenciesIdsWithAmountOfImprovedRate(historyWithinDate);
             var filteredCurrenciesIds = GetFilteredCurrenciesIdsDesc(count, CurrenciesIdsWithAmountOfImprovedRate);
             var requestedCurrencies = await FindByAsync(c => filteredCurrenciesIds.Any(x => x == c.Id));
 
