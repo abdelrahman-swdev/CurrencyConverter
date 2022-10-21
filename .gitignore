@@ -3,3 +3,6 @@ obj
 CurrencyConverter.Api/appsettings.json
 .vs
 .vscode
+/CurrencyConverter.Api/.config/dotnet-tools.json
+/CurrencyConverter.Api/Properties/PublishProfiles/FTPProfile.pubxml
+/CurrencyConverter.Api/Properties/PublishProfiles/FTPProfile.pubxml.user

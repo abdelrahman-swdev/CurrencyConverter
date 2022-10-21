@@ -66,7 +66,7 @@ namespace CurrencyConverter.Api
             // exception middleware
             app.UseMiddleware<ExceptionMiddleware>();
 
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsProduction())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CurrencyConverter.Api v1"));
