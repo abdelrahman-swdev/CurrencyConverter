@@ -1,6 +1,5 @@
 ﻿using CurrencyConverter.Api.Errors;
 using CurrencyConverter.Api.Params;
-using CurrencyConverter.Core.Entities;
 using CurrencyConverter.Service.DTOs;
 using CurrencyConverter.Service.Interfaces;
 using Microsoft.AspNetCore.Http;

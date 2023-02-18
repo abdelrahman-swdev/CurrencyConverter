@@ -53,16 +53,42 @@ namespace CurrencyConverter.Service.Services
         public async Task<CurrencyToReturnDto> GetCurrencyByNameAsync(string name)
         {
             var currency = await _currencyRepository.GetCurrencyByNameAsync(name);
-            return currency == null 
-                ? null 
-                : new CurrencyToReturnDto { Id = currency.Id, Sign = currency.Sign, Name = currency.Name };
+            if (currency is null)
+                return null;
+
+            var latestExchangeHistory = currency.ExchangeHistory.OrderByDescending(a => a.ExchangeDate).FirstOrDefault();
+
+            return new CurrencyToReturnDto 
+            { 
+                Id = currency.Id, 
+                Sign = currency.Sign, 
+                Name = currency.Name, 
+                ValueAgainstUsd = latestExchangeHistory is null ? 0 : Math.Round(1 / (decimal)latestExchangeHistory.Rate, 2)
+            };
         }
 
         public async Task<IReadOnlyList<CurrencyToReturnDto>> ListAllAsync()
         {
             var data = await _currencyRepository.ListAllAsync();
-            return data.Select(c => 
-                new CurrencyToReturnDto { Id = c.Id, Name = c.Name, Sign = c.Sign}).ToList();
+            if (data.Count == 0)
+                return Enumerable.Empty<CurrencyToReturnDto>().ToList();
+
+            return GetCurrencyToReturnDtos(data).ToList();
+        }
+
+        private IEnumerable<CurrencyToReturnDto> GetCurrencyToReturnDtos(IEnumerable<Currency> data)
+        {
+            foreach (var currency in data)
+            {
+                var latestExchangeHistory = currency.ExchangeHistory.OrderByDescending(a => a.ExchangeDate).FirstOrDefault();
+                yield return new CurrencyToReturnDto
+                {
+                    Id = currency.Id,
+                    Sign = currency.Sign,
+                    Name = currency.Name,
+                    ValueAgainstUsd = latestExchangeHistory is null ? 0 : Math.Round(1 / (decimal)latestExchangeHistory.Rate, 2)
+                };
+            }
         }
 
         /// <summary>

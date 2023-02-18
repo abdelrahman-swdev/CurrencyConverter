@@ -33,14 +33,19 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
         }
 
         public async Task<List<Currency>> FindByAsync(Expression<Func<Currency, bool>> criteria) => 
-            await _context.Currencies.Where(c => c.IsActive).Where(criteria).ToListAsync();
+            await _context.Currencies.Where(c => c.IsActive).Where(criteria).AsNoTracking().ToListAsync();
         
 
         public async Task<Currency> FindByIdAsync(int id) => 
             await _context.Currencies.FirstOrDefaultAsync(c => c.IsActive && c.Id == id);
 
         public async Task<Currency> GetCurrencyByNameAsync(string name) => 
-            await _context.Currencies.FirstOrDefaultAsync(c => c.IsActive && c.Name.ToLower() == name.ToLower());
+            await _context.Currencies
+            .Where(c => c.IsActive && c.Name.ToLower() == name.ToLower())
+            .Include(a => a.ExchangeHistory)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
 
         public async Task<Dictionary<Currency, float>> GetHighestNCurrenciesAsync(int count)
         {
@@ -103,7 +108,12 @@ namespace CurrencyConverter.Infrastructure.Data.Repositories
         }
 
         public async Task<IReadOnlyList<Currency>> ListAllAsync() => 
-            await _context.Currencies.Where(c => c.IsActive).ToListAsync();
+            await _context.Currencies
+            .Where(c => c.IsActive)
+            .Include(a => a.ExchangeHistory)
+            .AsSplitQuery()
+            .AsNoTracking()
+            .ToListAsync();
 
         public async Task<Currency> UpdateAsync(Currency entity)
         {
