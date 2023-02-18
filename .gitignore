@@ -4,4 +4,4 @@ CurrencyConverter.Api/appsettings.json
 .vs
 .vscode
 /CurrencyConverter.Api/.config/dotnet-tools.json
-**/Properties/
+CurrencyConverter.Api/Properties/launchSettings.json
