@@ -3,5 +3,104 @@ obj
 CurrencyConverter.Api/appsettings.json
 .vs
 .vscode
-/CurrencyConverter.Api/.config/dotnet-tools.json
-CurrencyConverter.Api/Properties/launchSettings.json
+# .NET Core
+bin/
+obj/
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[AnyCPU]/
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+# Visual Studio 2017 auto generated files
+Generated_Code/
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+# NUNIT
+*.VisualState.xml
+TestResult.xml
+# Build Results of an ATL Project
+[Dd]ebugPS/
+[Rr]eleasePS/
+dlldata.c
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+# StyleCop
+StyleCopReport.xml
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+# Chutzpah Test files
+_Chutzpah*
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+# TeamCity is a build add-in
+_TeamCity*
+# DotCover is a Code Coverage Tool
+*.dotCover
+# AxoCover is a Code Coverage Tool
+.axoCover/*
+!*.axoCover/settings.json
+# Coverlet is a free, cross-platform Code Coverage Tool
+coverage*/
+*.opendb
+# Publish profile files
+*.pubxml
+*.pubxml.*
+*.azurePubxml
+# Others
+[Tt]est[Rr]un[Rr]esults.xml
+*.VisualState.xml
+_buildlogs/
+*.user
+*.cache
+*.cpp.browse
+*.opensdf
+*.suo
+*.sln.docstates
+*.testsettings
+*.vbw
+*.vsp
+*.sln.bin
+*.ipch/
