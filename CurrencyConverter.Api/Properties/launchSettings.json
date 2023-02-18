@@ -7,7 +7,6 @@
       "applicationUrl": "http://localhost:8413",
       "sslPort": 44311
     }
-
   },
   "profiles": {
     "IIS Express": {
