@@ -3,6 +3,12 @@ obj
 CurrencyConverter.Api/appsettings.json
 .vs
 .vscode
+/CurrencyConverter.Api/.config/dotnet-tools.json
+bin
+obj
+CurrencyConverter.Api/appsettings.json
+.vs
+.vscode
 # .NET Core
 bin/
 obj/
@@ -104,3 +110,4 @@ _buildlogs/
 *.vsp
 *.sln.bin
 *.ipch/
+
